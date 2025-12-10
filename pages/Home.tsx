@@ -1,3 +1,4 @@
+
 import React from 'react';
 import { Link } from 'react-router-dom';
 import { ArrowRight, BookOpen, Award, CheckCircle, Users, Building } from 'lucide-react';
@@ -11,37 +12,28 @@ export const Home: React.FC = () => {
       {/* Hero Section */}
       <section className="relative bg-slate-900 text-white overflow-hidden">
         <div className="absolute inset-0 bg-blue-600 opacity-10 pattern-dots"></div>
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-24 relative z-10">
-          <div className="grid md:grid-cols-2 gap-12 items-center">
-            <div className="space-y-6">
-              <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-blue-900/50 border border-blue-700 text-blue-300 text-xs font-semibold uppercase tracking-wider">
-                <span className="w-2 h-2 rounded-full bg-blue-400 animate-pulse"></span>
-                Admissions Open 2024
-              </div>
-              <h1 className="text-4xl md:text-5xl lg:text-6xl font-extrabold leading-tight">
-                Master the Skills of <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-teal-400">Tomorrow</span>
-              </h1>
-              <p className="text-lg text-slate-300 max-w-lg">
-                SGC Skills & Computer Centre provides top-tier education in computer applications, programming, and design. Get certified and get hired.
-              </p>
-              <div className="flex flex-wrap gap-4 pt-4">
-                <Link to="/courses" className="px-8 py-4 bg-blue-600 hover:bg-blue-700 text-white font-bold rounded-lg shadow-lg shadow-blue-900/50 transition flex items-center gap-2">
-                  Explore Courses <ArrowRight size={20} />
-                </Link>
-                <Link to="/contact" className="px-8 py-4 bg-white/10 hover:bg-white/20 backdrop-blur text-white font-semibold rounded-lg border border-white/10 transition">
-                  Contact Us
-                </Link>
-              </div>
+        <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-24 relative z-10 text-center">
+            {/* CLEANED UP HERO: Only Title and Gov Reg info */}
+            <h1 className="text-3xl md:text-5xl font-extrabold leading-tight mb-8">
+            SHREE GANPATI COMPUTER AND STUDY CENTRE
+            </h1>
+            <div className="text-lg text-slate-300 space-y-4 max-w-2xl mx-auto">
+            <p className="font-medium text-white text-xl">
+                An Autonomous Regd. Under the Public Trust Act 1882 Govt. of India.
+            </p>
+            <p className="text-base text-slate-400 py-2 border-y border-white/10">
+                Registered Under NITI Aayog & Ministry of MSME Govt. of India.<br/>
+                An ISO 9001:2015 Certified Organization.
+            </p>
             </div>
-            <div className="relative">
-              <div className="absolute -inset-4 bg-gradient-to-r from-blue-500 to-teal-500 rounded-2xl opacity-30 blur-2xl"></div>
-              <img 
-                src="https://picsum.photos/600/400?grayscale" 
-                alt="Students learning" 
-                className="relative rounded-2xl shadow-2xl border border-slate-700 w-full object-cover"
-              />
+            <div className="flex flex-wrap justify-center gap-4 pt-10">
+            <Link to="/courses" className="px-8 py-4 bg-blue-600 hover:bg-blue-700 text-white font-bold rounded-lg shadow-lg shadow-blue-900/50 transition flex items-center gap-2">
+                Explore Courses <ArrowRight size={20} />
+            </Link>
+            <Link to="/contact" className="px-8 py-4 bg-white/10 hover:bg-white/20 backdrop-blur text-white font-semibold rounded-lg border border-white/10 transition">
+                Contact Us
+            </Link>
             </div>
-          </div>
         </div>
       </section>
 
@@ -120,7 +112,7 @@ export const Home: React.FC = () => {
             <h2 className="text-3xl md:text-4xl font-bold">Start Your Own Education Center</h2>
             <p className="text-blue-100 text-lg">Join the SGC network. Low investment, high returns, and full technical support provided.</p>
           </div>
-          <Link to="/contact" className="px-8 py-4 bg-white text-blue-600 font-bold rounded-xl hover:bg-blue-50 transition shadow-lg whitespace-nowrap">
+          <Link to="/franchise/register" className="px-8 py-4 bg-white text-blue-600 font-bold rounded-xl hover:bg-blue-50 transition shadow-lg whitespace-nowrap">
             Apply for Franchise
           </Link>
         </div>

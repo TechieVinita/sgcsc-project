@@ -1,3 +1,4 @@
+
 import { User, UserRole } from '../types';
 
 const STORAGE_KEY = 'sgc_auth_user';
@@ -14,6 +15,10 @@ export const login = async (username: string, password: string): Promise<User> =
         resolve(user);
       } else if (username === 'franchise' && password === 'franchise') {
         const user: User = { id: 'f1', username: 'franchise', name: 'Rajesh Kumar', role: UserRole.FRANCHISE, franchiseId: 'f1' };
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(user));
+        resolve(user);
+      } else if (username === 'student' && password === 'student') {
+        const user: User = { id: 's1', username: 'student', name: 'Rahul Singh', role: UserRole.STUDENT, franchiseId: 'f1' };
         localStorage.setItem(STORAGE_KEY, JSON.stringify(user));
         resolve(user);
       } else {

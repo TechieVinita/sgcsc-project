@@ -8,6 +8,7 @@ import { Login } from './pages/Login';
 import { About } from './pages/About';
 import { Contact } from './pages/Contact';
 import { Gallery } from './pages/Gallery';
+import { Profile } from './pages/Profile';
 // New Public Pages
 import { FranchiseRegister, FranchiseList, FranchiseDetails } from './pages/FranchisePages';
 import { AdmitCardDownload } from './pages/StudentPages';
@@ -58,11 +59,20 @@ const App: React.FC = () => {
 
           {/* Student Public Routes */}
           <Route path="/student/admit-card" element={<AdmitCardDownload />} />
+          
+          {/* Student Profile (Protected) */}
+          <Route path="/student/profile" element={<ProtectedRoute allowedRoles={[UserRole.STUDENT]}><Profile /></ProtectedRoute>} />
+          
+          {/* Franchise Profile (Protected) - Rendered in Public Layout */}
+          <Route path="/franchise/profile" element={<ProtectedRoute allowedRoles={[UserRole.FRANCHISE]}><Profile /></ProtectedRoute>} />
         </Route>
 
         {/* Admin Routes */}
         <Route element={<AdminLayout />}>
           <Route path="/admin/dashboard" element={<ProtectedRoute allowedRoles={[UserRole.ADMIN, UserRole.FRANCHISE]}><AdminDashboard /></ProtectedRoute>} />
+          
+          {/* Shared Admin/Franchise Profile (Admin Layout context) */}
+          <Route path="/admin/profile" element={<ProtectedRoute allowedRoles={[UserRole.ADMIN]}><Profile /></ProtectedRoute>} />
           
           {/* Admin Only */}
           <Route path="/admin/franchises" element={<ProtectedRoute allowedRoles={[UserRole.ADMIN]}><FranchiseManager /></ProtectedRoute>} />

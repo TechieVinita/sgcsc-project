@@ -1,3 +1,4 @@
+
 import React from 'react';
 import { getCourses } from '../services/storage';
 import { Clock, Award } from 'lucide-react';
@@ -10,9 +11,6 @@ export const Courses: React.FC = () => {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="text-center mb-16">
           <h1 className="text-4xl font-bold text-gray-900 mb-4">Our Programs</h1>
-          <p className="text-gray-600 max-w-2xl mx-auto">
-            From basic computer literacy to advanced software development, we offer courses designed for every skill level.
-          </p>
         </div>
 
         <div className="space-y-12">

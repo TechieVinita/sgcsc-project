@@ -9,6 +9,10 @@ const saveList = <T>(key: string, list: T[]) => localStorage.setItem(key, JSON.s
 // --- Franchise ---
 export const getFranchises = (): Franchise[] => getList<Franchise>('sgc_franchises');
 
+export const getFranchiseById = (id: string): Franchise | undefined => {
+  return getFranchises().find(f => f.id === id);
+};
+
 export const createFranchise = (data: any): Franchise => {
   const list = getFranchises();
   const newItem = { ...data, id: `f${Date.now()}`, createdAt: new Date().toISOString() };
@@ -51,6 +55,11 @@ export const getStudents = (franchiseId?: string): Student[] => {
   }));
   return franchiseId ? enriched.filter(s => s.franchiseId === franchiseId) : enriched;
 };
+
+export const getStudentById = (id: string): Student | undefined => {
+  return getStudents().find(s => s.id === id);
+};
+
 export const createStudent = (data: any): Student => {
   const list = getList<Student>('sgc_students');
   const newItem = { ...data, id: `s${Date.now()}` };
@@ -135,8 +144,37 @@ const initStorage = () => {
         saveList('sgc_franchises', [{ 
             id: 'f1', instituteId: 'SGC001', instituteName: 'SGC Main Center', instituteOwnerName: 'Rajesh Kumar', 
             email: 'rajesh@sgc.com', contactNumber: '9876543210', city: 'Lucknow', state: 'Uttar Pradesh', district: 'Lucknow', 
-            status: 'active', createdAt: '2023-01-01', username: 'franchise'
+            status: 'active', createdAt: '2023-01-01', username: 'franchise', address: '123 Main St'
         }]);
+    }
+    // Mock Student for the 'student' login
+    if (!localStorage.getItem('sgc_students')) {
+         saveList('sgc_students', [{
+             id: 's1',
+             centerName: 'SGC Main Center',
+             franchiseId: 'f1',
+             name: 'Rahul Singh',
+             gender: 'Male',
+             fatherName: 'Vikram Singh',
+             motherName: 'Sunita Devi',
+             dob: '2002-05-15',
+             email: 'rahul@example.com',
+             mobile: '9876543210',
+             state: 'Uttar Pradesh',
+             district: 'Lucknow',
+             address: '45, Gomti Nagar',
+             examPass: 'Yes',
+             marksPercentage: '75',
+             board: 'UP Board',
+             year: '2020',
+             courseId: '1',
+             sessionStart: '2023',
+             sessionEnd: '2024',
+             enrollmentNo: 'SGC2023001',
+             username: 'student',
+             status: 'active',
+             photo: ''
+         }]);
     }
 };
 initStorage();
