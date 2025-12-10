@@ -1,102 +1,125 @@
-import { Franchise, Student, Course, UserRole } from '../types';
 
-// Initial Mock Data
-const MOCK_COURSES: Course[] = [
-  { id: '1', name: 'ADCA (Advance Diploma in Computer Application)', code: 'ADCA', duration: '12 Months', type: 'Long Term', fees: 12000, description: 'Complete computer mastery course.' },
-  { id: '2', name: 'DCA (Diploma in Computer Application)', code: 'DCA', duration: '6 Months', type: 'Short Term', fees: 6000, description: 'Fundamental computer usage course.' },
-  { id: '3', name: 'CCC (Course on Computer Concepts)', code: 'CCC', duration: '3 Months', type: 'Certificate', fees: 3000, description: 'Basic computer literacy.' },
-];
+import { Franchise, Student, Course, Subject, InstituteMember, GalleryItem, Result, AdmitCard, Certificate, StudyMaterial, Assignment, SiteSettings } from '../types';
 
-const MOCK_FRANCHISES: Franchise[] = [
-  { id: 'f1', instituteName: 'SGC Main Center', ownerName: 'Rajesh Kumar', email: 'rajesh@sgc.com', phone: '9876543210', city: 'Lucknow', state: 'Uttar Pradesh', address: '123 Main St', status: 'active', createdAt: '2023-01-01' },
-  { id: 'f2', instituteName: 'Tech Skills Hub', ownerName: 'Amit Singh', email: 'amit@tech.com', phone: '9876543211', city: 'Kanpur', state: 'Uttar Pradesh', address: '456 Market Rd', status: 'pending', createdAt: '2023-06-15' },
-];
+// --- Initial Mock Data Wrappers ---
 
-const MOCK_STUDENTS: Student[] = [
-  { id: 's1', enrollmentNo: 'SGC2023001', name: 'Rahul Sharma', fatherName: 'Mohan Sharma', courseId: '1', franchiseId: 'f1', dob: '2000-05-15', mobile: '9998887776', email: 'rahul@gmail.com', gender: 'Male', sessionStart: '2023', sessionEnd: '2024', status: 'active' },
-  { id: 's2', enrollmentNo: 'SGC2023002', name: 'Priya Verma', fatherName: 'Suresh Verma', courseId: '2', franchiseId: 'f1', dob: '2001-08-20', mobile: '9998887775', email: 'priya@gmail.com', gender: 'Female', sessionStart: '2023', sessionEnd: '2023', status: 'completed' },
-];
+const getList = <T>(key: string): T[] => JSON.parse(localStorage.getItem(key) || '[]');
+const saveList = <T>(key: string, list: T[]) => localStorage.setItem(key, JSON.stringify(list));
 
-// Helper to initialize storage
-const initStorage = () => {
-  if (!localStorage.getItem('sgc_courses')) localStorage.setItem('sgc_courses', JSON.stringify(MOCK_COURSES));
-  if (!localStorage.getItem('sgc_franchises')) localStorage.setItem('sgc_franchises', JSON.stringify(MOCK_FRANCHISES));
-  if (!localStorage.getItem('sgc_students')) localStorage.setItem('sgc_students', JSON.stringify(MOCK_STUDENTS));
+// --- Franchise ---
+export const getFranchises = (): Franchise[] => getList<Franchise>('sgc_franchises');
+export const createFranchise = (data: any): Franchise => {
+  const list = getFranchises();
+  const newItem = { ...data, id: `f${Date.now()}`, createdAt: new Date().toISOString() };
+  list.push(newItem);
+  saveList('sgc_franchises', list);
+  return newItem;
 };
-
-initStorage();
-
-// --- API Service Methods (Simulating Backend) ---
-
-export const getCourses = (): Course[] => {
-  return JSON.parse(localStorage.getItem('sgc_courses') || '[]');
-};
-
-export const getFranchises = (): Franchise[] => {
-  return JSON.parse(localStorage.getItem('sgc_franchises') || '[]');
-};
-
-export const createFranchise = (data: Omit<Franchise, 'id' | 'createdAt'>): Franchise => {
-  const franchises = getFranchises();
-  const newFranchise: Franchise = {
-    ...data,
-    id: `f${Date.now()}`,
-    createdAt: new Date().toISOString(),
-  };
-  franchises.push(newFranchise);
-  localStorage.setItem('sgc_franchises', JSON.stringify(franchises));
-  return newFranchise;
-};
-
-export const updateFranchiseStatus = (id: string, status: Franchise['status']) => {
-  const franchises = getFranchises();
-  const index = franchises.findIndex(f => f.id === id);
-  if (index !== -1) {
-    franchises[index].status = status;
-    localStorage.setItem('sgc_franchises', JSON.stringify(franchises));
+export const updateFranchiseStatus = (id: string, status: any) => {
+  const list = getFranchises();
+  const item = list.find(x => x.id === id);
+  if (item) {
+    item.status = status;
+    saveList('sgc_franchises', list);
   }
 };
 
+// --- Students ---
 export const getStudents = (franchiseId?: string): Student[] => {
-  const students = JSON.parse(localStorage.getItem('sgc_students') || '[]');
+  const students = getList<Student>('sgc_students');
   const franchises = getFranchises();
-  
-  const enriched = students.map((s: Student) => ({
+  const enriched = students.map(s => ({
     ...s,
-    franchiseName: franchises.find(f => f.id === s.franchiseId)?.instituteName || 'Unknown'
+    centerName: franchises.find(f => f.id === s.franchiseId)?.instituteName || 'Unknown'
   }));
-
-  if (franchiseId) {
-    return enriched.filter((s: Student) => s.franchiseId === franchiseId);
-  }
-  return enriched;
+  return franchiseId ? enriched.filter(s => s.franchiseId === franchiseId) : enriched;
 };
-
-export const createStudent = (data: Omit<Student, 'id'>): Student => {
-  const students = JSON.parse(localStorage.getItem('sgc_students') || '[]');
-  const newStudent: Student = {
-    ...data,
-    id: `s${Date.now()}`,
-  };
-  students.push(newStudent);
-  localStorage.setItem('sgc_students', JSON.stringify(students));
-  return newStudent;
+export const createStudent = (data: any): Student => {
+  const list = getList<Student>('sgc_students');
+  const newItem = { ...data, id: `s${Date.now()}` };
+  list.push(newItem);
+  saveList('sgc_students', list);
+  return newItem;
 };
-
 export const verifyStudent = (enrollmentNo: string) => {
-  const students = getStudents();
-  return students.find(s => s.enrollmentNo === enrollmentNo);
+  return getStudents().find(s => s.enrollmentNo === enrollmentNo);
 };
 
+// --- Courses & Subjects ---
+export const getCourses = (): Course[] => getList<Course>('sgc_courses');
+export const createCourse = (data: any) => {
+  const list = getCourses();
+  list.push({ ...data, id: `c${Date.now()}` });
+  saveList('sgc_courses', list);
+};
+export const getSubjects = (courseId?: string): Subject[] => {
+  const list = getList<Subject>('sgc_subjects');
+  return courseId ? list.filter(s => s.courseId === courseId) : list;
+};
+export const createSubject = (data: any) => {
+  const list = getSubjects();
+  list.push({ ...data, id: `sub${Date.now()}` });
+  saveList('sgc_subjects', list);
+};
+
+// --- Generic Helpers for other modules ---
+export const getMembers = () => getList<InstituteMember>('sgc_members');
+export const createMember = (data: any) => { const l = getMembers(); l.push({...data, id: `m${Date.now()}`}); saveList('sgc_members', l); };
+
+export const getGallery = () => getList<GalleryItem>('sgc_gallery');
+export const createGalleryItem = (data: any) => { const l = getGallery(); l.push({...data, id: `g${Date.now()}`}); saveList('sgc_gallery', l); };
+
+export const getResults = () => getList<Result>('sgc_results');
+export const createResult = (data: any) => { const l = getResults(); l.push({...data, id: `r${Date.now()}`}); saveList('sgc_results', l); };
+
+export const getAdmitCards = () => getList<AdmitCard>('sgc_admitcards');
+export const createAdmitCard = (data: any) => { const l = getAdmitCards(); l.push({...data, id: `ac${Date.now()}`}); saveList('sgc_admitcards', l); };
+
+export const getCertificates = () => getList<Certificate>('sgc_certificates');
+export const createCertificate = (data: any) => { const l = getCertificates(); l.push({...data, id: `cert${Date.now()}`}); saveList('sgc_certificates', l); };
+
+export const getMaterials = () => getList<StudyMaterial>('sgc_materials');
+export const createMaterial = (data: any) => { const l = getMaterials(); l.push({...data, id: `mat${Date.now()}`}); saveList('sgc_materials', l); };
+
+export const getAssignments = () => getList<Assignment>('sgc_assignments');
+export const createAssignment = (data: any) => { const l = getAssignments(); l.push({...data, id: `ass${Date.now()}`}); saveList('sgc_assignments', l); };
+
+export const getSettings = (): SiteSettings => {
+  const defaults: SiteSettings = {
+    headerText: 'SGC Skills & Computer Centre',
+    footerText: '© 2024 SGCSC. All rights reserved.',
+    facebookUrl: '#', instagramUrl: '#', youtubeUrl: '#', logoUrl: ''
+  };
+  return JSON.parse(localStorage.getItem('sgc_settings') || JSON.stringify(defaults));
+};
+export const saveSettings = (data: SiteSettings) => localStorage.setItem('sgc_settings', JSON.stringify(data));
+
+
+// --- Stats ---
 export const getDashboardStats = () => {
-  const franchises = getFranchises();
-  const students = getStudents();
-  const courses = getCourses();
-  
   return {
-    totalFranchises: franchises.length,
-    totalStudents: students.length,
-    totalCourses: courses.length,
-    pendingApplications: franchises.filter(f => f.status === 'pending').length
+    totalFranchises: getFranchises().length,
+    totalStudents: getStudents().length,
+    totalCourses: getCourses().length,
+    pendingApplications: getFranchises().filter(f => f.status === 'pending').length
   };
 };
+
+// --- Initialization ---
+const initStorage = () => {
+    if (!localStorage.getItem('sgc_courses')) {
+        const initialCourses = [
+            { id: '1', name: 'ADCA (Advance Diploma in Computer Application)', code: 'ADCA', duration: '12 Months', type: 'Long Term', fees: 12000, description: 'Complete computer mastery course.' },
+            { id: '2', name: 'CCC (Course on Computer Concepts)', code: 'CCC', duration: '3 Months', type: 'Certificate', fees: 3000, description: 'Basic computer literacy.' },
+        ];
+        saveList('sgc_courses', initialCourses);
+    }
+    if (!localStorage.getItem('sgc_franchises')) {
+        saveList('sgc_franchises', [{ 
+            id: 'f1', instituteId: 'SGC001', instituteName: 'SGC Main Center', instituteOwnerName: 'Rajesh Kumar', 
+            email: 'rajesh@sgc.com', contactNumber: '9876543210', city: 'Lucknow', state: 'Uttar Pradesh', district: 'Lucknow', 
+            status: 'active', createdAt: '2023-01-01', username: 'franchise'
+        }]);
+    }
+};
+initStorage();

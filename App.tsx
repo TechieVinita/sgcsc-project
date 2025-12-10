@@ -1,17 +1,25 @@
-import React, { useState, useEffect } from 'react';
+
+import React from 'react';
 import { HashRouter, Routes, Route, Navigate, useLocation } from 'react-router-dom';
 import { Home } from './pages/Home';
 import { Courses } from './pages/Courses';
 import { Verification } from './pages/Verification';
 import { Login } from './pages/Login';
+import { About } from './pages/About';
+import { Contact } from './pages/Contact';
+import { Gallery } from './pages/Gallery';
 import { AdminDashboard } from './pages/admin/Dashboard';
 import { FranchiseManager } from './pages/admin/FranchiseManager';
 import { StudentManager } from './pages/admin/StudentManager';
+import { CourseManager } from './pages/admin/CourseManager';
+import { 
+  MemberManager, GalleryManager, ResultManager, AdmitCardManager, 
+  CertificateManager, StudyMaterialManager, AssignmentManager, SettingsManager 
+} from './pages/admin/Modules';
 import { PublicLayout, AdminLayout } from './components/Layouts';
 import { UserRole } from './types';
 import { checkAuth } from './services/auth';
 
-// Protected Route Component
 const ProtectedRoute = ({ children, allowedRoles }: { children?: React.ReactNode, allowedRoles: UserRole[] }) => {
   const user = checkAuth();
   const location = useLocation();
@@ -19,11 +27,9 @@ const ProtectedRoute = ({ children, allowedRoles }: { children?: React.ReactNode
   if (!user) {
     return <Navigate to="/login" state={{ from: location }} replace />;
   }
-
   if (!allowedRoles.includes(user.role)) {
     return <Navigate to="/" replace />;
   }
-
   return <>{children}</>;
 };
 
@@ -34,42 +40,34 @@ const App: React.FC = () => {
         {/* Public Routes */}
         <Route element={<PublicLayout />}>
           <Route path="/" element={<Home />} />
+          <Route path="/about" element={<About />} />
           <Route path="/courses" element={<Courses />} />
           <Route path="/verification" element={<Verification />} />
           <Route path="/login" element={<Login />} />
-          <Route path="/contact" element={<div className="p-10 text-center">Contact Page Placeholder</div>} />
-          <Route path="/gallery" element={<div className="p-10 text-center">Gallery Page Placeholder</div>} />
+          <Route path="/contact" element={<Contact />} />
+          <Route path="/gallery" element={<Gallery />} />
         </Route>
 
         {/* Admin Routes */}
         <Route element={<AdminLayout />}>
-          <Route 
-            path="/admin/dashboard" 
-            element={
-              <ProtectedRoute allowedRoles={[UserRole.ADMIN]}>
-                <AdminDashboard />
-              </ProtectedRoute>
-            } 
-          />
-          <Route 
-            path="/admin/franchises" 
-            element={
-              <ProtectedRoute allowedRoles={[UserRole.ADMIN]}>
-                <FranchiseManager />
-              </ProtectedRoute>
-            } 
-          />
-          <Route 
-            path="/admin/students" 
-            element={
-              <ProtectedRoute allowedRoles={[UserRole.ADMIN, UserRole.FRANCHISE]}>
-                <StudentManager />
-              </ProtectedRoute>
-            } 
-          />
+          <Route path="/admin/dashboard" element={<ProtectedRoute allowedRoles={[UserRole.ADMIN, UserRole.FRANCHISE]}><AdminDashboard /></ProtectedRoute>} />
+          
+          {/* Admin Only */}
+          <Route path="/admin/franchises" element={<ProtectedRoute allowedRoles={[UserRole.ADMIN]}><FranchiseManager /></ProtectedRoute>} />
+          <Route path="/admin/courses" element={<ProtectedRoute allowedRoles={[UserRole.ADMIN]}><CourseManager /></ProtectedRoute>} />
+          <Route path="/admin/members" element={<ProtectedRoute allowedRoles={[UserRole.ADMIN]}><MemberManager /></ProtectedRoute>} />
+          <Route path="/admin/gallery" element={<ProtectedRoute allowedRoles={[UserRole.ADMIN]}><GalleryManager /></ProtectedRoute>} />
+          <Route path="/admin/results" element={<ProtectedRoute allowedRoles={[UserRole.ADMIN]}><ResultManager /></ProtectedRoute>} />
+          <Route path="/admin/admit-cards" element={<ProtectedRoute allowedRoles={[UserRole.ADMIN]}><AdmitCardManager /></ProtectedRoute>} />
+          <Route path="/admin/certificates" element={<ProtectedRoute allowedRoles={[UserRole.ADMIN]}><CertificateManager /></ProtectedRoute>} />
+          <Route path="/admin/materials" element={<ProtectedRoute allowedRoles={[UserRole.ADMIN]}><StudyMaterialManager /></ProtectedRoute>} />
+          <Route path="/admin/assignments" element={<ProtectedRoute allowedRoles={[UserRole.ADMIN]}><AssignmentManager /></ProtectedRoute>} />
+          <Route path="/admin/settings" element={<ProtectedRoute allowedRoles={[UserRole.ADMIN]}><SettingsManager /></ProtectedRoute>} />
+
+          {/* Shared Admin/Franchise */}
+          <Route path="/admin/students" element={<ProtectedRoute allowedRoles={[UserRole.ADMIN, UserRole.FRANCHISE]}><StudentManager /></ProtectedRoute>} />
         </Route>
         
-        {/* Fallback */}
         <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>
     </HashRouter>

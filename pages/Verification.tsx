@@ -110,7 +110,7 @@ export const Verification: React.FC = () => {
                       </div>
                       <div>
                         <p className="text-xs text-gray-500 uppercase tracking-wide">Center Name</p>
-                        <p className="font-medium text-gray-800">{result.franchiseName}</p>
+                        <p className="font-medium text-gray-800">{result.centerName}</p>
                       </div>
                       <div>
                         <p className="text-xs text-gray-500 uppercase tracking-wide">Status</p>
