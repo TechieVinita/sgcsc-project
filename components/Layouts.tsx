@@ -1,76 +1,164 @@
 
 import React, { useState } from 'react';
 import { Outlet, Link, useLocation } from 'react-router-dom';
-import { Menu, X, GraduationCap, LayoutDashboard, Users, Building, BookOpen, FileCheck, LogOut, ChevronDown, UserCog, Image, Award, FileText, ClipboardList, Settings, StickyNote } from 'lucide-react';
+import { Menu, X, LayoutDashboard, Users, Building, BookOpen, LogOut, ChevronDown, UserCog, Image, Award, FileText, ClipboardList, Settings, StickyNote } from 'lucide-react';
 import { checkAuth, logout } from '../services/auth';
 import { UserRole } from '../types';
 
 // --- Public Layout ---
 export const PublicLayout: React.FC = () => {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const [activeDropdown, setActiveDropdown] = useState<string | null>(null);
   const location = useLocation();
 
-  const navLinks = [
+  const navItems = [
     { name: 'Home', path: '/' },
-    { name: 'About', path: '/about' },
-    { name: 'Courses', path: '/courses' },
+    { name: 'About Company', path: '/about' },
+    {
+      name: 'Our Courses',
+      children: [
+        { name: 'Long Term Courses (1 Year)', path: '/courses?type=Long Term' },
+        { name: 'Short Term Courses (6 Months)', path: '/courses?type=Short Term' },
+        { name: 'Certificate Courses (3 Months)', path: '/courses?type=Certificate' },
+      ]
+    },
+    {
+      name: 'Franchise',
+      children: [
+        { name: 'Franchise Registration Online', path: '/franchise/register' },
+        { name: 'Franchise Details', path: '/franchise/details' },
+        { name: 'Franchise Verification', path: '/verification?tab=franchise' },
+        { name: 'Study Center List', path: '/franchise/list' },
+        { name: 'Center Login', path: '/login' },
+      ]
+    },
+    {
+      name: 'Student',
+      children: [
+        { name: 'Enrollment Verification', path: '/verification?tab=enrollment' },
+        { name: 'Result Verification', path: '/verification?tab=result' },
+        { name: 'Certificate Verification', path: '/verification?tab=certificate' },
+        { name: 'Admit Card', path: '/student/admit-card' },
+        { name: 'Student Login', path: '/login' },
+      ]
+    },
     { name: 'Gallery', path: '/gallery' },
-    { name: 'Verification', path: '/verification' },
-    { name: 'Contact', path: '/contact' },
+    { name: 'Contact Us', path: '/contact' },
   ];
 
-  const isActive = (path: string) => location.pathname === path;
+  const handleMobileDropdown = (name: string) => {
+    setActiveDropdown(activeDropdown === name ? null : name);
+  };
 
   return (
     <div className="flex flex-col min-h-screen">
-      <header className="sticky top-0 z-50 bg-white border-b border-gray-100 shadow-sm">
+      <header className="sticky top-0 z-50 bg-white border-b border-gray-100 shadow-sm font-sans">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex justify-between items-center h-20">
-            <Link to="/" className="flex items-center gap-2">
-              <div className="bg-blue-600 p-2 rounded-lg">
-                <GraduationCap className="h-8 w-8 text-white" />
-              </div>
-              <div className="hidden md:block">
-                <h1 className="text-xl font-bold text-gray-900 leading-tight">SGCSC</h1>
-                <p className="text-xs text-gray-500 font-medium tracking-wide">Skills & Computer Centre</p>
-              </div>
+          <div className="flex justify-between items-center h-24">
+            {/* Logo Section - IMAGE ONLY, NO TEXT */}
+            <Link to="/" className="flex-shrink-0 flex items-center">
+              <img 
+                src="/logo.png" 
+                alt="SGCSC" 
+                className="h-20 w-auto object-contain" // Adjusted size for better visibility
+              />
             </Link>
-            <nav className="hidden md:flex gap-1">
-              {navLinks.map((link) => (
-                <Link
-                  key={link.path}
-                  to={link.path}
-                  className={`px-3 py-2 rounded-md text-sm font-medium transition-colors ${
-                    isActive(link.path) ? 'text-blue-600 bg-blue-50' : 'text-gray-600 hover:text-blue-600 hover:bg-gray-50'
-                  }`}
-                >
-                  {link.name}
-                </Link>
+
+            {/* Desktop Navigation */}
+            <nav className="hidden lg:flex gap-1 items-center">
+              {navItems.map((item) => (
+                <div key={item.name} className="relative group px-1">
+                  {item.children ? (
+                    <button className="flex items-center gap-1 px-3 py-2 text-sm font-medium text-gray-700 hover:text-blue-600 rounded-md transition-colors group-hover:bg-blue-50">
+                      {item.name}
+                      <ChevronDown size={14} className="group-hover:rotate-180 transition-transform duration-200" />
+                    </button>
+                  ) : (
+                    <Link
+                      to={item.path!}
+                      className={`px-3 py-2 rounded-md text-sm font-medium transition-colors ${
+                        location.pathname === item.path ? 'text-blue-600 bg-blue-50' : 'text-gray-700 hover:text-blue-600 hover:bg-blue-50'
+                      }`}
+                    >
+                      {item.name}
+                    </Link>
+                  )}
+
+                  {/* Desktop Dropdown Menu */}
+                  {item.children && (
+                    <div className="absolute left-0 top-full pt-2 w-64 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 transform translate-y-2 group-hover:translate-y-0 z-50">
+                      <div className="bg-white border border-gray-100 rounded-xl shadow-xl overflow-hidden py-2">
+                        {item.children.map((child) => (
+                          <Link
+                            key={child.name}
+                            to={child.path}
+                            className="block px-4 py-2.5 text-sm text-gray-600 hover:bg-blue-50 hover:text-blue-600 border-l-2 border-transparent hover:border-blue-600 transition-all"
+                          >
+                            {child.name}
+                          </Link>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+                </div>
               ))}
-              <Link to="/login" className="ml-4 px-5 py-2 text-sm font-medium text-white bg-blue-600 rounded-md hover:bg-blue-700 transition shadow-sm">
-                Login
-              </Link>
             </nav>
-            <button onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)} className="md:hidden p-2 text-gray-600 hover:bg-gray-100 rounded-md">
-              {isMobileMenuOpen ? <X size={24} /> : <Menu size={24} />}
+
+            {/* Mobile Menu Button */}
+            <button 
+              onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)} 
+              className="lg:hidden p-2 text-gray-600 hover:bg-gray-100 rounded-md transition-colors"
+            >
+              {isMobileMenuOpen ? <X size={28} /> : <Menu size={28} />}
             </button>
           </div>
         </div>
+
+        {/* Mobile Navigation Menu */}
         {isMobileMenuOpen && (
-          <div className="md:hidden border-t border-gray-100 bg-white p-2">
-            {navLinks.map((link) => (
-              <Link
-                key={link.path}
-                to={link.path}
-                onClick={() => setIsMobileMenuOpen(false)}
-                className="block px-3 py-2 rounded-md text-base font-medium text-gray-700 hover:bg-gray-50"
-              >
-                {link.name}
-              </Link>
-            ))}
-            <Link to="/login" className="block w-full text-center mt-4 px-5 py-3 text-base font-medium text-white bg-blue-600 rounded-md">
-              Login
-            </Link>
+          <div className="lg:hidden border-t border-gray-100 bg-white absolute w-full left-0 z-40 shadow-lg max-h-[80vh] overflow-y-auto">
+            <div className="p-4 space-y-1">
+              {navItems.map((item) => (
+                <div key={item.name}>
+                  {item.children ? (
+                    <div>
+                      <button
+                        onClick={() => handleMobileDropdown(item.name)}
+                        className="w-full flex justify-between items-center px-4 py-3 text-base font-medium text-gray-700 hover:bg-gray-50 rounded-lg"
+                      >
+                        {item.name}
+                        <ChevronDown 
+                          size={16} 
+                          className={`transition-transform duration-200 ${activeDropdown === item.name ? 'rotate-180' : ''}`}
+                        />
+                      </button>
+                      {activeDropdown === item.name && (
+                        <div className="bg-gray-50 rounded-lg mt-1 space-y-1 p-2 ml-4">
+                          {item.children.map((child) => (
+                            <Link
+                              key={child.name}
+                              to={child.path}
+                              onClick={() => setIsMobileMenuOpen(false)}
+                              className="block px-4 py-2 text-sm text-gray-600 hover:text-blue-600 rounded-md"
+                            >
+                              {child.name}
+                            </Link>
+                          ))}
+                        </div>
+                      )}
+                    </div>
+                  ) : (
+                    <Link
+                      to={item.path!}
+                      onClick={() => setIsMobileMenuOpen(false)}
+                      className="block px-4 py-3 text-base font-medium text-gray-700 hover:bg-gray-50 rounded-lg"
+                    >
+                      {item.name}
+                    </Link>
+                  )}
+                </div>
+              ))}
+            </div>
           </div>
         )}
       </header>
@@ -138,7 +226,7 @@ export const AdminLayout: React.FC = () => {
   ];
 
   return (
-    <div className="flex h-screen bg-gray-50 overflow-hidden">
+    <div className="flex h-screen bg-gray-50 overflow-hidden font-sans">
       <aside className="w-64 bg-slate-900 text-slate-300 flex-shrink-0 flex flex-col overflow-y-auto">
         <div className="h-16 flex items-center px-6 bg-slate-950 border-b border-slate-800 sticky top-0 z-10">
           <span className="text-white font-bold text-lg tracking-wide">SGC Admin</span>

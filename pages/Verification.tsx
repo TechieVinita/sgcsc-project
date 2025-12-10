@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import { Search, FileCheck, AlertCircle, CheckCircle } from 'lucide-react';
 import { verifyStudent } from '../services/storage';
@@ -70,7 +71,7 @@ export const Verification: React.FC = () => {
                     type="text"
                     value={searchId}
                     onChange={(e) => setSearchId(e.target.value)}
-                    className="block w-full pl-4 pr-12 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                    className="block w-full pl-4 pr-12 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white"
                     placeholder={activeTab === 'student' ? 'e.g., SGC2023001' : 'Search ID...'}
                     required
                   />

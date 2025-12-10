@@ -32,6 +32,11 @@ export const CourseManager: React.FC = () => {
     setSubjectForm({ name: '', maxMarks: 100, minMarks: 33 });
   };
 
+  const handleNumberInput = (setter: any, current: any, field: string, value: string) => {
+    const num = value === '' ? 0 : parseInt(value);
+    setter({ ...current, [field]: isNaN(num) ? 0 : num });
+  };
+
   const SubjectsList = ({ courseId }: { courseId: string }) => {
     const subjects = getSubjects(courseId);
     return (
@@ -91,15 +96,15 @@ export const CourseManager: React.FC = () => {
             <div className="bg-white p-6 rounded-xl shadow-xl max-w-md w-full">
                 <h2 className="text-lg font-bold mb-4">Create New Course</h2>
                 <form onSubmit={handleCreateCourse} className="space-y-4">
-                    <input required className="w-full border p-2 rounded" placeholder="Course Name" value={courseForm.name} onChange={e => setCourseForm({...courseForm, name: e.target.value})} />
+                    <input required className="w-full border p-2 rounded bg-white" placeholder="Course Name" value={courseForm.name} onChange={e => setCourseForm({...courseForm, name: e.target.value})} />
                     <div className="grid grid-cols-2 gap-4">
-                        <input required className="w-full border p-2 rounded" placeholder="Code (e.g. ADCA)" value={courseForm.code} onChange={e => setCourseForm({...courseForm, code: e.target.value})} />
-                        <input required className="w-full border p-2 rounded" placeholder="Duration (e.g. 1 Year)" value={courseForm.duration} onChange={e => setCourseForm({...courseForm, duration: e.target.value})} />
+                        <input required className="w-full border p-2 rounded bg-white" placeholder="Code (e.g. ADCA)" value={courseForm.code} onChange={e => setCourseForm({...courseForm, code: e.target.value})} />
+                        <input required className="w-full border p-2 rounded bg-white" placeholder="Duration (e.g. 1 Year)" value={courseForm.duration} onChange={e => setCourseForm({...courseForm, duration: e.target.value})} />
                     </div>
-                    <select className="w-full border p-2 rounded" value={courseForm.type} onChange={e => setCourseForm({...courseForm, type: e.target.value as any})}><option>Long Term</option><option>Short Term</option><option>Certificate</option></select>
-                    <input type="number" required className="w-full border p-2 rounded" placeholder="Fees" value={courseForm.fees || ''} onChange={e => setCourseForm({...courseForm, fees: parseInt(e.target.value)})} />
-                    <textarea className="w-full border p-2 rounded" placeholder="Description" rows={3} value={courseForm.description} onChange={e => setCourseForm({...courseForm, description: e.target.value})}></textarea>
-                    <div className="flex gap-2 pt-2"><button type="button" onClick={() => setShowCourseModal(false)} className="flex-1 border p-2 rounded">Cancel</button><button type="submit" className="flex-1 bg-blue-600 text-white p-2 rounded">Create</button></div>
+                    <select className="w-full border p-2 rounded bg-white" value={courseForm.type} onChange={e => setCourseForm({...courseForm, type: e.target.value as any})}><option>Long Term</option><option>Short Term</option><option>Certificate</option></select>
+                    <input type="number" required className="w-full border p-2 rounded bg-white" placeholder="Fees" value={courseForm.fees || ''} onChange={e => handleNumberInput(setCourseForm, courseForm, 'fees', e.target.value)} />
+                    <textarea className="w-full border p-2 rounded bg-white" placeholder="Description" rows={3} value={courseForm.description} onChange={e => setCourseForm({...courseForm, description: e.target.value})}></textarea>
+                    <div className="flex gap-2 pt-2"><button type="button" onClick={() => setShowCourseModal(false)} className="flex-1 border p-2 rounded bg-white">Cancel</button><button type="submit" className="flex-1 bg-blue-600 text-white p-2 rounded">Create</button></div>
                 </form>
             </div>
         </div>
@@ -110,12 +115,12 @@ export const CourseManager: React.FC = () => {
             <div className="bg-white p-6 rounded-xl shadow-xl max-w-sm w-full">
                 <h2 className="text-lg font-bold mb-4">Add Subject</h2>
                 <form onSubmit={handleCreateSubject} className="space-y-4">
-                    <input required className="w-full border p-2 rounded" placeholder="Subject Name" value={subjectForm.name} onChange={e => setSubjectForm({...subjectForm, name: e.target.value})} />
+                    <input required className="w-full border p-2 rounded bg-white" placeholder="Subject Name" value={subjectForm.name} onChange={e => setSubjectForm({...subjectForm, name: e.target.value})} />
                     <div className="grid grid-cols-2 gap-4">
-                        <div><label className="text-xs">Max Marks</label><input type="number" className="w-full border p-2 rounded" value={subjectForm.maxMarks} onChange={e => setSubjectForm({...subjectForm, maxMarks: parseInt(e.target.value)})} /></div>
-                        <div><label className="text-xs">Min Marks</label><input type="number" className="w-full border p-2 rounded" value={subjectForm.minMarks} onChange={e => setSubjectForm({...subjectForm, minMarks: parseInt(e.target.value)})} /></div>
+                        <div><label className="text-xs">Max Marks</label><input type="number" className="w-full border p-2 rounded bg-white" value={subjectForm.maxMarks || ''} onChange={e => handleNumberInput(setSubjectForm, subjectForm, 'maxMarks', e.target.value)} /></div>
+                        <div><label className="text-xs">Min Marks</label><input type="number" className="w-full border p-2 rounded bg-white" value={subjectForm.minMarks || ''} onChange={e => handleNumberInput(setSubjectForm, subjectForm, 'minMarks', e.target.value)} /></div>
                     </div>
-                     <div className="flex gap-2 pt-2"><button type="button" onClick={() => setShowSubjectModal(false)} className="flex-1 border p-2 rounded">Cancel</button><button type="submit" className="flex-1 bg-blue-600 text-white p-2 rounded">Add</button></div>
+                     <div className="flex gap-2 pt-2"><button type="button" onClick={() => setShowSubjectModal(false)} className="flex-1 border p-2 rounded bg-white">Cancel</button><button type="submit" className="flex-1 bg-blue-600 text-white p-2 rounded">Add</button></div>
                 </form>
             </div>
           </div>

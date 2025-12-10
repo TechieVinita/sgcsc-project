@@ -8,6 +8,7 @@ const saveList = <T>(key: string, list: T[]) => localStorage.setItem(key, JSON.s
 
 // --- Franchise ---
 export const getFranchises = (): Franchise[] => getList<Franchise>('sgc_franchises');
+
 export const createFranchise = (data: any): Franchise => {
   const list = getFranchises();
   const newItem = { ...data, id: `f${Date.now()}`, createdAt: new Date().toISOString() };
@@ -15,6 +16,22 @@ export const createFranchise = (data: any): Franchise => {
   saveList('sgc_franchises', list);
   return newItem;
 };
+
+export const updateFranchise = (id: string, data: Partial<Franchise>) => {
+  const list = getFranchises();
+  const index = list.findIndex(f => f.id === id);
+  if (index !== -1) {
+    list[index] = { ...list[index], ...data };
+    saveList('sgc_franchises', list);
+  }
+};
+
+export const deleteFranchise = (id: string) => {
+  const list = getFranchises();
+  const filtered = list.filter(f => f.id !== id);
+  saveList('sgc_franchises', filtered);
+};
+
 export const updateFranchiseStatus = (id: string, status: any) => {
   const list = getFranchises();
   const item = list.find(x => x.id === id);

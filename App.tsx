@@ -8,6 +8,10 @@ import { Login } from './pages/Login';
 import { About } from './pages/About';
 import { Contact } from './pages/Contact';
 import { Gallery } from './pages/Gallery';
+// New Public Pages
+import { FranchiseRegister, FranchiseList, FranchiseDetails } from './pages/FranchisePages';
+import { AdmitCardDownload } from './pages/StudentPages';
+
 import { AdminDashboard } from './pages/admin/Dashboard';
 import { FranchiseManager } from './pages/admin/FranchiseManager';
 import { StudentManager } from './pages/admin/StudentManager';
@@ -46,6 +50,14 @@ const App: React.FC = () => {
           <Route path="/login" element={<Login />} />
           <Route path="/contact" element={<Contact />} />
           <Route path="/gallery" element={<Gallery />} />
+          
+          {/* Franchise Public Routes */}
+          <Route path="/franchise/register" element={<FranchiseRegister />} />
+          <Route path="/franchise/list" element={<FranchiseList />} />
+          <Route path="/franchise/details" element={<FranchiseDetails />} />
+
+          {/* Student Public Routes */}
+          <Route path="/student/admit-card" element={<AdmitCardDownload />} />
         </Route>
 
         {/* Admin Routes */}
