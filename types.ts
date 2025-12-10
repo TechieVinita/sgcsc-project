@@ -12,6 +12,7 @@ export interface User {
   name: string;
   role: UserRole;
   franchiseId?: string;
+  token?: string;
 }
 
 export interface Franchise {
