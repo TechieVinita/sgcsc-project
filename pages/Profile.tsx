@@ -1,20 +1,47 @@
 
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { checkAuth } from '../services/auth';
 import { getStudentById, getFranchiseById, getCourses } from '../services/storage';
-import { UserRole } from '../types';
-import { User, MapPin, Phone, Mail, Calendar, BookOpen, Building, Hash, Award } from 'lucide-react';
+import { UserRole, Student, Franchise, Course } from '../types';
+import { User, MapPin, Phone, Mail, Calendar, BookOpen, Building, Hash, Award, Loader2 } from 'lucide-react';
 
 export const Profile: React.FC = () => {
   const user = checkAuth();
+  const [student, setStudent] = useState<Student | null | undefined>(null);
+  const [franchise, setFranchise] = useState<Franchise | null | undefined>(null);
+  const [course, setCourse] = useState<Course | undefined>(undefined);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const loadProfile = async () => {
+      setLoading(true);
+      try {
+        if (user?.role === UserRole.STUDENT) {
+            const s = await getStudentById(user.id);
+            setStudent(s);
+            if (s?.courseId) {
+                const courses = await getCourses();
+                setCourse(courses.find(c => c.id === s.courseId));
+            }
+        } else if (user?.role === UserRole.FRANCHISE) {
+            const f = await getFranchiseById(user.id);
+            setFranchise(f);
+        }
+      } catch (e) {
+        console.error("Failed to load profile", e);
+      } finally {
+        setLoading(false);
+      }
+    };
+    if (user) loadProfile();
+    else setLoading(false);
+  }, [user]);
 
   if (!user) return <div className="p-8 text-center">Please log in to view profile.</div>;
+  if (loading) return <div className="p-16 flex justify-center"><Loader2 className="animate-spin text-blue-600" size={32} /></div>;
 
   // --- STUDENT PROFILE ---
   if (user.role === UserRole.STUDENT) {
-    const student = getStudentById(user.id);
-    const course = getCourses().find(c => c.id === student?.courseId);
-
     if (!student) return <div className="p-8 text-center">Student record not found.</div>;
 
     return (
@@ -49,7 +76,7 @@ export const Profile: React.FC = () => {
                 <div className="space-y-6">
                     <h3 className="text-lg font-bold text-gray-900 border-b border-gray-100 pb-2">Academic Information</h3>
                     <div className="space-y-4">
-                        <InfoItem icon={BookOpen} label="Course" value={`${course?.name} (${course?.code})`} />
+                        <InfoItem icon={BookOpen} label="Course" value={course ? `${course.name} (${course.code})` : 'N/A'} />
                         <InfoItem icon={Building} label="Study Center" value={student.centerName} />
                         <InfoItem icon={Calendar} label="Session" value={`${student.sessionStart} - ${student.sessionEnd}`} />
                         <InfoItem icon={Award} label="Qualification" value={`${student.examPass === 'Yes' ? 'Passed' : 'Pursuing'} (${student.board})`} />
@@ -79,7 +106,6 @@ export const Profile: React.FC = () => {
 
   // --- FRANCHISE PROFILE (UPDATED TO MATCH STUDENT STYLE) ---
   if (user.role === UserRole.FRANCHISE) {
-      const franchise = getFranchiseById(user.id);
       if (!franchise) return <div className="p-8 text-center">Franchise record not found.</div>;
 
       return (

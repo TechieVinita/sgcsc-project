@@ -1,11 +1,11 @@
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { getCourses, createCourse, getSubjects, createSubject } from '../../services/storage';
 import { Course, Subject } from '../../types';
 import { Plus, ChevronDown, ChevronRight, Book } from 'lucide-react';
 
 export const CourseManager: React.FC = () => {
-  const [courses, setCourses] = useState<Course[]>(getCourses());
+  const [courses, setCourses] = useState<Course[]>([]);
   const [expandedCourse, setExpandedCourse] = useState<string | null>(null);
   
   // Modals
@@ -17,10 +17,23 @@ export const CourseManager: React.FC = () => {
   const [courseForm, setCourseForm] = useState<Partial<Course>>({ name: '', duration: '', code: '', fees: 0, description: '', type: 'Long Term' });
   const [subjectForm, setSubjectForm] = useState<Partial<Subject>>({ name: '', maxMarks: 100, minMarks: 33 });
 
-  const handleCreateCourse = (e: React.FormEvent) => {
+  const loadCourses = async () => {
+    try {
+        const data = await getCourses();
+        setCourses(data);
+    } catch (e) {
+        console.error(e);
+    }
+  };
+
+  useEffect(() => {
+    loadCourses();
+  }, []);
+
+  const handleCreateCourse = async (e: React.FormEvent) => {
     e.preventDefault();
-    createCourse(courseForm);
-    setCourses(getCourses());
+    await createCourse(courseForm);
+    loadCourses();
     setShowCourseModal(false);
   };
 

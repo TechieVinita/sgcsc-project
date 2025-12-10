@@ -1,6 +1,6 @@
 
 import React, { useState } from 'react';
-import { Search, FileCheck, AlertCircle, CheckCircle } from 'lucide-react';
+import { Search, FileCheck, AlertCircle, CheckCircle, Loader2 } from 'lucide-react';
 import { verifyStudent } from '../services/storage';
 import { Student } from '../types';
 
@@ -10,22 +10,31 @@ export const Verification: React.FC = () => {
   const [result, setResult] = useState<Student | null>(null);
   const [error, setError] = useState('');
   const [searched, setSearched] = useState(false);
+  const [loading, setLoading] = useState(false);
 
-  const handleVerify = (e: React.FormEvent) => {
+  const handleVerify = async (e: React.FormEvent) => {
     e.preventDefault();
     setError('');
     setResult(null);
-    setSearched(true);
+    setSearched(false);
+    setLoading(true);
 
-    if (activeTab === 'student' || activeTab === 'certificate') {
-      const student = verifyStudent(searchId);
-      if (student) {
-        setResult(student);
+    try {
+      if (activeTab === 'student' || activeTab === 'certificate') {
+        const student = await verifyStudent(searchId);
+        if (student) {
+          setResult(student);
+        } else {
+          setError('No record found with the provided details.');
+        }
       } else {
-        setError('No record found with the provided details.');
+        setError('Franchise verification requires live backend.');
       }
-    } else {
-      setError('Franchise verification requires live backend.');
+    } catch (err) {
+      setError('An error occurred during verification.');
+    } finally {
+      setLoading(false);
+      setSearched(true);
     }
   };
 
@@ -46,7 +55,7 @@ export const Verification: React.FC = () => {
             ].map(tab => (
               <button
                 key={tab.id}
-                onClick={() => { setActiveTab(tab.id as any); setSearched(false); setSearchId(''); }}
+                onClick={() => { setActiveTab(tab.id as any); setSearched(false); setSearchId(''); setResult(null); setError(''); }}
                 className={`flex-1 py-4 text-sm font-medium text-center transition-colors ${
                   activeTab === tab.id 
                     ? 'bg-blue-50 text-blue-700 border-b-2 border-blue-600' 
@@ -75,8 +84,8 @@ export const Verification: React.FC = () => {
                     placeholder={activeTab === 'student' ? 'e.g., SGC2023001' : 'Search ID...'}
                     required
                   />
-                  <button type="submit" className="absolute right-2 top-2 p-1.5 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition">
-                    <Search size={20} />
+                  <button type="submit" disabled={loading} className="absolute right-2 top-2 p-1.5 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition disabled:bg-blue-400">
+                    {loading ? <Loader2 size={20} className="animate-spin" /> : <Search size={20} />}
                   </button>
                 </div>
               </div>

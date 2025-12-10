@@ -1,10 +1,23 @@
 
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { getCourses } from '../services/storage';
 import { Clock, Award } from 'lucide-react';
+import { Course } from '../types';
 
 export const Courses: React.FC = () => {
-  const courses = getCourses();
+  const [courses, setCourses] = useState<Course[]>([]);
+
+  useEffect(() => {
+    const fetchCourses = async () => {
+      try {
+        const data = await getCourses();
+        setCourses(data);
+      } catch (error) {
+        console.error(error);
+      }
+    };
+    fetchCourses();
+  }, []);
 
   return (
     <div className="bg-slate-50 min-h-screen py-16">

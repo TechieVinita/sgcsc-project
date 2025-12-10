@@ -1,5 +1,5 @@
 
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import { Plus, Search, Trash2, Download, X, Upload, FileText, Eye, Calendar, MapPin, User, Image as ImageIcon } from 'lucide-react';
 import {
   getMembers, createMember, getGallery, createGalleryItem,
@@ -9,7 +9,7 @@ import {
 } from '../../services/storage';
 import {
   InstituteMember, GalleryItem, Result, AdmitCard,
-  Certificate, StudyMaterial, Assignment
+  Certificate, StudyMaterial, Assignment, Course
 } from '../../types';
 
 // --- Shared Components ---
@@ -179,9 +179,13 @@ export const GalleryManager = () => {
 
 export const ResultManager = () => {
     const [results, setResults] = useState<Result[]>(getResults());
+    const [courses, setCourses] = useState<Course[]>([]);
     const [showModal, setShowModal] = useState(false);
-    const courses = getCourses();
     const [form, setForm] = useState<Partial<Result>>({ enrollmentNo: '', rollNo: '', courseId: '', marks: '' });
+
+    useEffect(() => {
+        getCourses().then(setCourses).catch(console.error);
+    }, []);
 
     const handleSave = (e: React.FormEvent) => {
         e.preventDefault();
@@ -234,9 +238,13 @@ export const ResultManager = () => {
 
 export const AdmitCardManager = () => {
     const [cards, setCards] = useState<AdmitCard[]>(getAdmitCards());
+    const [courses, setCourses] = useState<Course[]>([]);
     const [showModal, setShowModal] = useState(false);
-    const courses = getCourses();
     const [form, setForm] = useState<Partial<AdmitCard>>({ enrollmentNo: '', rollNo: '', courseId: '', examCenter: '', examDate: '', examTime: '' });
+
+    useEffect(() => {
+        getCourses().then(setCourses).catch(console.error);
+    }, []);
 
     const handleSave = (e: React.FormEvent) => {
         e.preventDefault();

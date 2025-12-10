@@ -1,5 +1,5 @@
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { getFranchises, createFranchise } from '../services/storage';
 import { Franchise } from '../types';
 import { MapPin, Phone, Mail, CheckCircle, Building } from 'lucide-react';
@@ -98,7 +98,19 @@ export const FranchiseRegister: React.FC = () => {
 };
 
 export const FranchiseList: React.FC = () => {
-    const franchises = getFranchises().filter(f => f.status === 'active');
+    const [franchises, setFranchises] = useState<Franchise[]>([]);
+
+    useEffect(() => {
+        const load = async () => {
+            try {
+                const data = await getFranchises();
+                setFranchises(data.filter(f => f.status === 'active'));
+            } catch (e) {
+                console.error(e);
+            }
+        };
+        load();
+    }, []);
 
     return (
         <div className="bg-slate-50 min-h-screen py-16">
@@ -111,6 +123,7 @@ export const FranchiseList: React.FC = () => {
                 <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
                     {franchises.length === 0 ? (
                         <div className="col-span-full text-center text-gray-500 py-12 bg-white rounded-xl border border-gray-200">
+                            {/* Can add loading spinner logic here if needed, but keeping it simple */}
                             No active centers found at the moment.
                         </div>
                     ) : (

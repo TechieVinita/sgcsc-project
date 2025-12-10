@@ -182,6 +182,17 @@ router.get('/courses', async (req, res) => {
     res.json(courses);
 });
 
+// Create Course (Admin only)
+router.post('/courses', protect, async (req, res) => {
+    if(req.user.role !== 'ADMIN') return res.status(403).json({message: 'Admin only'});
+    try {
+        const newCourse = await Course.create(req.body);
+        res.status(201).json(newCourse);
+    } catch(error) {
+        res.status(500).json({message: error.message});
+    }
+});
+
 // Upload Helper Route
 router.post('/upload', upload.single('file'), (req, res) => {
     if(!req.file) return res.status(400).send('No file uploaded');

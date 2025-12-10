@@ -1,11 +1,24 @@
 
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { ArrowRight, BookOpen, Award, CheckCircle, Users, Building } from 'lucide-react';
 import { getCourses } from '../services/storage';
+import { Course } from '../types';
 
 export const Home: React.FC = () => {
-  const featuredCourses = getCourses().slice(0, 3);
+  const [featuredCourses, setFeaturedCourses] = useState<Course[]>([]);
+
+  useEffect(() => {
+    const fetchCourses = async () => {
+      try {
+        const courses = await getCourses();
+        setFeaturedCourses(courses.slice(0, 3));
+      } catch (error) {
+        console.error("Failed to load courses", error);
+      }
+    };
+    fetchCourses();
+  }, []);
 
   return (
     <div className="flex flex-col gap-16 pb-16">

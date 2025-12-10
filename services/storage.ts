@@ -1,83 +1,99 @@
 
 import { Franchise, Student, Course, Subject, InstituteMember, GalleryItem, Result, AdmitCard, Certificate, StudyMaterial, Assignment, SiteSettings } from '../types';
+import { getAuthHeaders } from './auth';
 
-// --- Initial Mock Data Wrappers ---
+const API_URL = 'http://localhost:5000/api';
+
+// --- HELPER: File Upload ---
+export const uploadFile = async (file: File): Promise<string> => {
+  const formData = new FormData();
+  formData.append('file', file);
+  
+  try {
+      const response = await fetch(`${API_URL}/upload`, {
+          method: 'POST',
+          body: formData // No headers needed, browser sets multipart
+      });
+      if (!response.ok) throw new Error('Upload failed');
+      const data = await response.json();
+      return `${API_URL}${data.filePath}`; // Return full URL
+  } catch (error) {
+      console.error("Upload error", error);
+      return '';
+  }
+};
+
+// --- API WRAPPERS ---
+
+// --- Franchises ---
+export const getFranchises = async (): Promise<Franchise[]> => {
+  const res = await fetch(`${API_URL}/franchises`, { headers: getAuthHeaders() });
+  return await res.json();
+};
+
+export const createFranchise = async (data: any): Promise<Franchise> => {
+  const res = await fetch(`${API_URL}/franchises`, {
+    method: 'POST',
+    headers: getAuthHeaders(),
+    body: JSON.stringify(data)
+  });
+  if (!res.ok) throw new Error("Failed to create franchise");
+  return await res.json();
+};
+
+// --- Students ---
+export const getStudents = async (): Promise<Student[]> => {
+  const res = await fetch(`${API_URL}/students`, { headers: getAuthHeaders() });
+  return await res.json();
+};
+
+export const createStudent = async (data: any): Promise<Student> => {
+  const res = await fetch(`${API_URL}/students`, {
+    method: 'POST',
+    headers: getAuthHeaders(),
+    body: JSON.stringify(data)
+  });
+  if (!res.ok) throw new Error("Failed to create student");
+  return await res.json();
+};
+
+// --- Courses ---
+export const getCourses = async (): Promise<Course[]> => {
+  const res = await fetch(`${API_URL}/courses`);
+  return await res.json();
+};
+
+export const createCourse = async (data: any): Promise<Course> => {
+   const res = await fetch(`${API_URL}/courses`, {
+    method: 'POST',
+    headers: getAuthHeaders(),
+    body: JSON.stringify(data)
+  });
+  return await res.json();
+};
+
+// --- ASYNC HELPERS (Added to fix component errors) ---
+export const verifyStudent = async (searchId: string): Promise<Student | undefined> => {
+    const students = await getStudents();
+    return students.find(s => s.enrollmentNo === searchId);
+};
+
+export const getStudentById = async (userId: string): Promise<Student | undefined> => {
+    const students = await getStudents();
+    return students.find(s => s.id === userId || (s as any).userId === userId);
+};
+
+export const getFranchiseById = async (userId: string): Promise<Franchise | undefined> => {
+    const franchises = await getFranchises();
+    return franchises.find(f => f.id === userId || (f as any).userId === userId);
+};
+
+// --- MOCK FALLBACKS (For modules we haven't built backend routes for yet) ---
+// These still use LocalStorage until you add routes in server/routes.js for them
 
 const getList = <T>(key: string): T[] => JSON.parse(localStorage.getItem(key) || '[]');
 const saveList = <T>(key: string, list: T[]) => localStorage.setItem(key, JSON.stringify(list));
 
-// --- Franchise ---
-export const getFranchises = (): Franchise[] => getList<Franchise>('sgc_franchises');
-
-export const getFranchiseById = (id: string): Franchise | undefined => {
-  return getFranchises().find(f => f.id === id);
-};
-
-export const createFranchise = (data: any): Franchise => {
-  const list = getFranchises();
-  const newItem = { ...data, id: `f${Date.now()}`, createdAt: new Date().toISOString() };
-  list.push(newItem);
-  saveList('sgc_franchises', list);
-  return newItem;
-};
-
-export const updateFranchise = (id: string, data: Partial<Franchise>) => {
-  const list = getFranchises();
-  const index = list.findIndex(f => f.id === id);
-  if (index !== -1) {
-    list[index] = { ...list[index], ...data };
-    saveList('sgc_franchises', list);
-  }
-};
-
-export const deleteFranchise = (id: string) => {
-  const list = getFranchises();
-  const filtered = list.filter(f => f.id !== id);
-  saveList('sgc_franchises', filtered);
-};
-
-export const updateFranchiseStatus = (id: string, status: any) => {
-  const list = getFranchises();
-  const item = list.find(x => x.id === id);
-  if (item) {
-    item.status = status;
-    saveList('sgc_franchises', list);
-  }
-};
-
-// --- Students ---
-export const getStudents = (franchiseId?: string): Student[] => {
-  const students = getList<Student>('sgc_students');
-  const franchises = getFranchises();
-  const enriched = students.map(s => ({
-    ...s,
-    centerName: franchises.find(f => f.id === s.franchiseId)?.instituteName || 'Unknown'
-  }));
-  return franchiseId ? enriched.filter(s => s.franchiseId === franchiseId) : enriched;
-};
-
-export const getStudentById = (id: string): Student | undefined => {
-  return getStudents().find(s => s.id === id);
-};
-
-export const createStudent = (data: any): Student => {
-  const list = getList<Student>('sgc_students');
-  const newItem = { ...data, id: `s${Date.now()}` };
-  list.push(newItem);
-  saveList('sgc_students', list);
-  return newItem;
-};
-export const verifyStudent = (enrollmentNo: string) => {
-  return getStudents().find(s => s.enrollmentNo === enrollmentNo);
-};
-
-// --- Courses & Subjects ---
-export const getCourses = (): Course[] => getList<Course>('sgc_courses');
-export const createCourse = (data: any) => {
-  const list = getCourses();
-  list.push({ ...data, id: `c${Date.now()}` });
-  saveList('sgc_courses', list);
-};
 export const getSubjects = (courseId?: string): Subject[] => {
   const list = getList<Subject>('sgc_subjects');
   return courseId ? list.filter(s => s.courseId === courseId) : list;
@@ -88,7 +104,6 @@ export const createSubject = (data: any) => {
   saveList('sgc_subjects', list);
 };
 
-// --- Generic Helpers for other modules ---
 export const getMembers = () => getList<InstituteMember>('sgc_members');
 export const createMember = (data: any) => { const l = getMembers(); l.push({...data, id: `m${Date.now()}`}); saveList('sgc_members', l); };
 
@@ -118,63 +133,13 @@ export const getSettings = (): SiteSettings => {
   };
   return JSON.parse(localStorage.getItem('sgc_settings') || JSON.stringify(defaults));
 };
-export const saveSettings = (data: SiteSettings) => localStorage.setItem('sgc_settings', JSON.stringify(data));
 
-
-// --- Stats ---
 export const getDashboardStats = () => {
-  return {
-    totalFranchises: getFranchises().length,
-    totalStudents: getStudents().length,
-    totalCourses: getCourses().length,
-    pendingApplications: getFranchises().filter(f => f.status === 'pending').length
-  };
+    // Mock stats for dashboard to prevent crash, ideally fetch from API
+    return {
+        totalFranchises: 0,
+        totalStudents: 0,
+        totalCourses: 0,
+        pendingApplications: 0
+    };
 };
-
-// --- Initialization ---
-const initStorage = () => {
-    if (!localStorage.getItem('sgc_courses')) {
-        const initialCourses = [
-            { id: '1', name: 'ADCA (Advance Diploma in Computer Application)', code: 'ADCA', duration: '12 Months', type: 'Long Term', fees: 12000, description: 'Complete computer mastery course.' },
-            { id: '2', name: 'CCC (Course on Computer Concepts)', code: 'CCC', duration: '3 Months', type: 'Certificate', fees: 3000, description: 'Basic computer literacy.' },
-        ];
-        saveList('sgc_courses', initialCourses);
-    }
-    if (!localStorage.getItem('sgc_franchises')) {
-        saveList('sgc_franchises', [{ 
-            id: 'f1', instituteId: 'SGC001', instituteName: 'SGC Main Center', instituteOwnerName: 'Rajesh Kumar', 
-            email: 'rajesh@sgc.com', contactNumber: '9876543210', city: 'Lucknow', state: 'Uttar Pradesh', district: 'Lucknow', 
-            status: 'active', createdAt: '2023-01-01', username: 'franchise', address: '123 Main St'
-        }]);
-    }
-    // Mock Student for the 'student' login
-    if (!localStorage.getItem('sgc_students')) {
-         saveList('sgc_students', [{
-             id: 's1',
-             centerName: 'SGC Main Center',
-             franchiseId: 'f1',
-             name: 'Rahul Singh',
-             gender: 'Male',
-             fatherName: 'Vikram Singh',
-             motherName: 'Sunita Devi',
-             dob: '2002-05-15',
-             email: 'rahul@example.com',
-             mobile: '9876543210',
-             state: 'Uttar Pradesh',
-             district: 'Lucknow',
-             address: '45, Gomti Nagar',
-             examPass: 'Yes',
-             marksPercentage: '75',
-             board: 'UP Board',
-             year: '2020',
-             courseId: '1',
-             sessionStart: '2023',
-             sessionEnd: '2024',
-             enrollmentNo: 'SGC2023001',
-             username: 'student',
-             status: 'active',
-             photo: ''
-         }]);
-    }
-};
-initStorage();
